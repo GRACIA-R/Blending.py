@@ -8,12 +8,12 @@ from optimizer import WaterBlendOptimizer
 
 # -----------------------------------------
 st.set_page_config(
-    page_title="Water Blending Optimizer",
+    page_title="Optimización del mezclado de agua",
     layout="wide"
 )
 
 st.markdown(
-    "<h1 style='color:#0a7d3b;'>💧 Water Blending Optimizer</h1>",
+    "<h1 style='color:#0a7d3b;'>💧 Optimización del mezclado de agua</h1>",
     unsafe_allow_html=True
 )
 
@@ -27,8 +27,8 @@ st.markdown(
 # -----------------------------------------
 st.sidebar.header("⚙️ Parámetros del Modelo")
 
-w_As = st.sidebar.slider("Peso Arsénico", 0.0, 1.0, 0.2)
-w_Cl = st.sidebar.slider("Peso Cloruros", 0.0, 1.0, 0.8)
+w_As = st.sidebar.slider("Peso Arsénico", 0.0, 1.0, 0.3)
+w_Cl = st.sidebar.slider("Peso Cloruros", 0.0, 1.0, 0.7)
 
 Demand = st.sidebar.number_input(
     "Demanda (LPS)", min_value=1.0, max_value=200.0, value=50.0
