@@ -4,7 +4,7 @@ from pulp import LpProblem, LpVariable, LpMinimize, lpSum, PULP_CBC_CMD
 
 class WaterBlendOptimizer:
 
-    def __init__(self, df, w_As=0.3, w_Cl=0.2, As_ref=0.025, Cl_ref=320):
+    def __init__(self, df, w_As=0.3, w_Cl=0.7, As_ref=0.025, Cl_ref=320):
         self.df = df.copy()
         self.w_As = w_As
         self.w_Cl = w_Cl
