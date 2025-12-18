@@ -5,40 +5,40 @@ import matplotlib.pyplot as plt
 
 from optimizer import WaterBlendOptimizer
 
-# -----------------------------------------
+# ======================================================
 # CONFIGURACIÓN DE PÁGINA
-# -----------------------------------------
+# ======================================================
 st.set_page_config(
     page_title="Optimización del mezclado de agua",
     layout="wide"
 )
 
-# -----------------------------------------
-# ESTILOS CSS
-# -----------------------------------------
+# ======================================================
+# ESTILOS CSS (RESULTADOS GRANDES Y CLAROS)
+# ======================================================
 st.markdown(
     """
     <style>
-    /* ===== MÉTRICAS ===== */
+    /* ===== MÉTRICAS MUY GRANDES ===== */
     div[data-testid="metric-container"] {
         background-color: #f4fdf8;
-        border: 1px solid #cce8d6;
-        padding: 20px;
-        border-radius: 10px;
+        border: 2px solid #b6e2c8;
+        padding: 25px;
+        border-radius: 12px;
     }
 
     div[data-testid="metric-container"] > label {
-        font-size: 22px;
+        font-size: 24px !important;
         font-weight: bold;
     }
 
     div[data-testid="metric-container"] > div {
-        font-size: 34px;
+        font-size: 42px !important;
         font-weight: bold;
         color: #0a7d3b;
     }
 
-    /* ===== TABLAS ===== */
+    /* ===== TABLAS GRANDES ===== */
     .dataframe tbody tr td {
         font-size: 20px;
         font-weight: bold;
@@ -53,9 +53,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# -----------------------------------------
+# ======================================================
 # TÍTULO
-# -----------------------------------------
+# ======================================================
 st.markdown(
     "<h1 style='color:#0a7d3b;'>💧 Optimización del mezclado de agua</h1>",
     unsafe_allow_html=True
@@ -66,48 +66,21 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# -----------------------------------------
-# DESCRIPCIÓN
-# -----------------------------------------
-st.markdown(
-    """
-    ### 🧭 ¿Cómo funciona esta herramienta?
-
-    Esta aplicación optimiza el **mezclado de agua proveniente de distintos pozos**
-    para minimizar las concentraciones de **Arsénico (As)** y **Cloruros (Cl)**,
-    cumpliendo una **demanda total de agua**.
-
-    **⚙️ Pesos del modelo**
-    - **Peso Arsénico:** mayor valor → el modelo prioriza reducir As.
-    - **Peso Cloruros:** mayor valor → el modelo prioriza reducir Cl.
-    > Aumentar un peso puede empeorar el otro contaminante.
-
-    **💧 Demanda (LPS)**
-    - Caudal total requerido del sistema.
-    - Rango recomendado: **0 – 150 LPS**
-    - Demandas altas obligan a usar pozos de peor calidad.
-
-    **📏 Límites normativos**
-    - Arsénico: **0.025 mg/L**
-    - Cloruros: **35 mg/L**
-    """
-)
-
-# -----------------------------------------
+# ======================================================
 # SIDEBAR
-# -----------------------------------------
+# ======================================================
 st.sidebar.header("⚙️ Parámetros del Modelo")
 
 w_As = st.sidebar.slider(
     "Peso Arsénico",
     0.0, 1.0, 0.3,
-    help="Mayor valor prioriza reducir Arsénico"
+    help="Mayor valor → mayor prioridad a reducir arsénico"
 )
 
 w_Cl = st.sidebar.slider(
     "Peso Cloruros",
     0.0, 1.0, 0.7,
-    help="Mayor valor prioriza reducir Cloruros"
+    help="Mayor valor → mayor prioridad a reducir cloruros"
 )
 
 Demand = st.sidebar.number_input(
@@ -119,9 +92,36 @@ Demand = st.sidebar.number_input(
     help="Caudal total requerido del sistema"
 )
 
-# -----------------------------------------
+# ------------------------------------------------------
+# DESCRIPCIÓN DEL MODELO (SIDEBAR)
+# ------------------------------------------------------
+st.sidebar.markdown(
+    """
+    ---
+    ### 🧠 ¿Cómo funciona el modelo?
+
+    El modelo determina la **combinación óptima de caudales**
+    de los pozos disponibles para cumplir la **demanda total**
+    minimizando la concentración final de contaminantes.
+
+    **⚖️ Pesos del modelo**
+    - **Peso Arsénico:** prioriza reducir As.
+    - **Peso Cloruros:** prioriza reducir Cl.
+    > Subir un peso puede aumentar el otro contaminante.
+
+    **💧 Demanda**
+    - Rango operativo: **0 – 150 LPS**
+    - Demandas altas pueden forzar el uso de pozos de peor calidad.
+
+    **📏 Límites normativos**
+    - Arsénico: **0.025 mg/L**
+    - Cloruros: **35 mg/L**
+    """
+)
+
+# ======================================================
 # DATOS DE POZOS
-# -----------------------------------------
+# ======================================================
 st.subheader("📊 Datos de los Pozos")
 
 df = pd.DataFrame({
@@ -141,9 +141,9 @@ df_edit = st.data_editor(
 df_edit["avail"] = df_edit["Disponible"].astype(int)
 df_edit = df_edit.drop(columns="Disponible")
 
-# -----------------------------------------
+# ======================================================
 # OPTIMIZACIÓN
-# -----------------------------------------
+# ======================================================
 if st.button("🚀 Ejecutar Optimización"):
 
     try:
@@ -157,9 +157,9 @@ if st.button("🚀 Ejecutar Optimización"):
 
         st.success("Optimización completada correctamente")
 
-        # ---------------------------------
-        # RESULTADOS
-        # ---------------------------------
+        # --------------------------------------------------
+        # RESULTADOS (MUY GRANDES)
+        # --------------------------------------------------
         st.subheader("📈 Resultados")
 
         col1, col2 = st.columns(2)
@@ -178,9 +178,9 @@ if st.button("🚀 Ejecutar Optimización"):
             else:
                 st.success("✅ Cumple norma")
 
-        # ---------------------------------
+        # --------------------------------------------------
         # CAUDALES ÓPTIMOS
-        # ---------------------------------
+        # --------------------------------------------------
         st.markdown(
             "<h2 style='color:#0a7d3b;'>💧 Caudales Óptimos (LPS)</h2>",
             unsafe_allow_html=True
@@ -193,9 +193,9 @@ if st.button("🚀 Ejecutar Optimización"):
         df_Q = df_Q[df_Q["Caudal (LPS)"] > 1e-3]
         st.dataframe(df_Q, use_container_width=True)
 
-        # ---------------------------------
+        # --------------------------------------------------
         # SENSIBILIDAD CON DEMANDA
-        # ---------------------------------
+        # --------------------------------------------------
         st.subheader("📉 Sensibilidad con la Demanda")
 
         Ds = np.arange(5, int(df_edit["Qmax"].sum()), 2)
@@ -212,8 +212,8 @@ if st.button("🚀 Ejecutar Optimización"):
         fig, ax1 = plt.subplots(figsize=(9, 4))
         ax2 = ax1.twinx()
 
-        ax1.plot(Ds[:len(As_list)], As_list, linewidth=2, label="Arsénico")
-        ax2.plot(Ds[:len(Cl_list)], Cl_list, "r--", linewidth=2, label="Cloruros")
+        ax1.plot(Ds[:len(As_list)], As_list, linewidth=2)
+        ax2.plot(Ds[:len(Cl_list)], Cl_list, "r--", linewidth=2)
 
         # Límites normativos
         ax1.axhline(0.025, color="red", linestyle=":", linewidth=2)
