@@ -165,18 +165,26 @@ if st.button("🚀 Ejecutar Optimización"):
         col1, col2 = st.columns(2)
 
         with col1:
-            st.metric("Arsénico final (mg/L)", f"{As_f:.5f}")
+            st.markdown(
+                "<h2 style='color:#0a7d3b;'>Arsénico final (mg/L)</h2>",
+                unsafe_allow_html=True
+            )
+            st.metric(f"{As_f:.5f}")
             if As_f > 0.025:
                 st.error("⚠️ Supera límite normativo (0.025 mg/L)")
             else:
                 st.success("✅ Cumple norma")
 
         with col2:
-            st.metric("Cloruros finales (mg/L)", f"{Cl_f:.2f}")
+            st.markdown(
+                "<h2 style='color:#0a7d3b;'>Cloruro final (mg/L)</h2>",
+                unsafe_allow_html=True
+            )            
+            st.metric(f"{Cl_f:.2f}")
             if Cl_f > 35:
                 st.error("⚠️ Supera límite normativo (35 mg/L)")
             else:
-                st.success("✅ Cumple norma")
+                st.success("✅ Cumple estándar")
 
         # --------------------------------------------------
         # CAUDALES ÓPTIMOS
