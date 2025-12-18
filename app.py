@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # ======================================================
-# ESTILOS CSS (RESULTADOS GRANDES Y CLAROS)
+# ESTILOS CSS
 # ======================================================
 st.markdown(
     """
@@ -71,16 +71,24 @@ st.markdown(
 # ======================================================
 st.sidebar.header("⚙️ Parámetros del Modelo")
 
-w_As = st.sidebar.slider(
-    "Peso Arsénico",
-    0.0, 1.0, 0.3,
-    help="Mayor valor → mayor prioridad a reducir arsénico"
-)
-
+# ---- PESO CLORUROS (CONTROL PRINCIPAL)
 w_Cl = st.sidebar.slider(
     "Peso Cloruros",
-    0.0, 1.0, 0.7,
-    help="Mayor valor → mayor prioridad a reducir cloruros"
+    min_value=0.0,
+    max_value=1.0,
+    value=0.7,
+    step=0.05,
+    help="Controla la prioridad de reducción de cloruros"
+)
+
+# ---- PESO ARSÉNICO (DERIVADO)
+w_As = 1.0 - w_Cl
+
+st.sidebar.markdown(
+    f"""
+    **Peso Arsénico (calculado automáticamente):**  
+    🔒 **{w_As:.2f}**
+    """
 )
 
 Demand = st.sidebar.number_input(
@@ -100,14 +108,14 @@ st.sidebar.markdown(
     ---
     ### 🧠 ¿Cómo funciona el modelo?
 
-    El modelo determina la **combinación óptima de caudales**
+    El modelo calcula la **combinación óptima de caudales**
     de los pozos disponibles para cumplir la **demanda total**
     minimizando la concentración final de contaminantes.
 
-    **⚖️ Pesos del modelo**
-    - **Peso Arsénico:** prioriza reducir As.
-    - **Peso Cloruros:** prioriza reducir Cl.
-    > Subir un peso puede aumentar el otro contaminante.
+    **⚖️ Pesos acoplados**
+    - Solo se ajusta **Cloruros**
+    - **Arsénico = 1 − Peso Cloruros**
+    - La suma de pesos es siempre **1**
 
     **💧 Demanda**
     - Rango operativo: **0 – 150 LPS**
@@ -158,7 +166,7 @@ if st.button("🚀 Ejecutar Optimización"):
         st.success("Optimización completada correctamente")
 
         # --------------------------------------------------
-        # RESULTADOS (MUY GRANDES)
+        # RESULTADOS
         # --------------------------------------------------
         st.subheader("📈 Resultados")
 
@@ -169,7 +177,7 @@ if st.button("🚀 Ejecutar Optimización"):
                 "<h2 style='color:#0a7d3b;'>Arsénico final (mg/L)</h2>",
                 unsafe_allow_html=True
             )
-            st.metric(f"{As_f:.5f}")
+            st.metric("", f"{As_f:.5f}")
             if As_f > 0.025:
                 st.error("⚠️ Supera límite normativo (0.025 mg/L)")
             else:
@@ -179,12 +187,12 @@ if st.button("🚀 Ejecutar Optimización"):
             st.markdown(
                 "<h2 style='color:#0a7d3b;'>Cloruro final (mg/L)</h2>",
                 unsafe_allow_html=True
-            )            
-            st.metric(f"{Cl_f:.2f}")
+            )
+            st.metric("", f"{Cl_f:.2f}")
             if Cl_f > 35:
                 st.error("⚠️ Supera límite normativo (35 mg/L)")
             else:
-                st.success("✅ Cumple estándar")
+                st.success("✅ Cumple norma")
 
         # --------------------------------------------------
         # CAUDALES ÓPTIMOS
@@ -223,7 +231,6 @@ if st.button("🚀 Ejecutar Optimización"):
         ax1.plot(Ds[:len(As_list)], As_list, linewidth=2)
         ax2.plot(Ds[:len(Cl_list)], Cl_list, "r--", linewidth=2)
 
-        # Límites normativos
         ax1.axhline(0.025, color="red", linestyle=":", linewidth=2)
         ax2.axhline(35, color="darkred", linestyle=":", linewidth=2)
 
