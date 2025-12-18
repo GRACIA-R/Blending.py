@@ -86,7 +86,7 @@ w_As = 1.0 - w_Cl
 
 st.sidebar.markdown(
     f"""
-    **Peso Arsénico (calculado automáticamente):**  
+    **Peso Arsénico:**  
     🔒 **{w_As:.2f}**
     """
 )
@@ -106,13 +106,13 @@ Demand = st.sidebar.number_input(
 st.sidebar.markdown(
     """
     ---
-    ### 🧠 ¿Cómo funciona el modelo?
+    ### ¿Cómo funciona el modelo?
 
     El modelo calcula la **combinación óptima de caudales**
     de los pozos disponibles para cumplir la **demanda total**
     minimizando la concentración final de contaminantes.
 
-    **⚖️ Pesos acoplados**
+    **Pesos: Se refiere a la importancia de reducción de cada contaminante**
     - Solo se ajusta **Cloruros**
     - **Arsénico = 1 − Peso Cloruros**
     - La suma de pesos es siempre **1**
@@ -121,16 +121,20 @@ st.sidebar.markdown(
     - Rango operativo: **0 – 150 LPS**
     - Demandas altas pueden forzar el uso de pozos de peor calidad.
 
-    **📏 Límites normativos**
+    **📏 Límites establecidos**
     - Arsénico: **0.025 mg/L**
     - Cloruros: **35 mg/L**
+
+    **Contacto**
+    german.devora@itson.edu.mx
     """
+    
 )
 
 # ======================================================
 # DATOS DE POZOS
 # ======================================================
-st.subheader("📊 Datos de los Pozos")
+st.subheader("📊 Datos de los Pozos (editables)")
 
 df = pd.DataFrame({
     "Pozo": ["Pozo 1", "Pozo 2", "Pozo 3", "Pozo 4", "Pozo 5"],
@@ -190,9 +194,9 @@ if st.button("🚀 Ejecutar Optimización"):
             )
             st.metric("", f"{Cl_f:.2f}")
             if Cl_f > 35:
-                st.error("⚠️ Supera límite normativo (35 mg/L)")
+                st.error("⚠️ Supera límite estándar (35 mg/L)")
             else:
-                st.success("✅ Cumple norma")
+                st.success("✅ Cumple estándar")
 
         # --------------------------------------------------
         # CAUDALES ÓPTIMOS
