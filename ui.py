@@ -9,6 +9,20 @@ from pulp import (
     lpSum, PULP_CBC_CMD
 )
 
+
+# ==================================================
+# DICCIONARIO DE OPERACIONES UNITARIAS
+# ==================================================
+# --- Eficiencias aparentes por operación unitaria ---
+UNIT_OPERATIONS = {
+    "Sin tratamiento": {"As": 0.00, "Cl": 0.00},
+    "Adsorción":       {"As": 0.70, "Cl": 0.10},
+    "Intercambio iónico": {"As": 0.90, "Cl": 0.30},
+    "Ósmosis inversa": {"As": 0.98, "Cl": 0.95},
+    "Biodegradación":  {"As": 0.15, "Cl": 0.05},
+    "Deionización capacitiva": {"As": 0.50, "Cl": 0.60},
+}
+
 # ==================================================
 # OPTIMIZADOR DE BLENDING
 # ==================================================
@@ -60,6 +74,15 @@ def optimize_blending(df, demand, w_as=0.2, w_cl=0.8,
 # ==================================================
 def render_ui():
 
+    st.subheader("🧩 Flowsheet del proceso")
+
+    st.image(
+        "main/flowsheet.png",
+        caption="Esquema conceptual del sistema de tratamiento",
+        use_container_width=True
+    )
+
+    
     # ---------------------------
     # Datos base
     # ---------------------------
