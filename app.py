@@ -2,9 +2,23 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from ui import *
 
 from optimizer import WaterBlendOptimizer
+
+
+# ======================================================
+# OPERACIONES UNITARIAS
+# ======================================================
+UNIT_OPERATIONS = {
+    "Sin pretratamiento": {"As": 0.00, "Cl": 0.00},
+    "Intercambio iónico": {"As": 0.85, "Cl": 0.10},
+    "Adsorción": {"As": 0.70, "Cl": 0.05},
+    "Electrocoagulación": {"As": 0.90, "Cl": 0.15},
+    "Biodegradación": {"As": 0.40, "Cl": 0.00},
+    "Precipitación química": {"As": 0.75, "Cl": 0.05},
+    "Deionización capacitiva (CDI)": {"As": 0.75, "Cl": 0.05},
+}
+
 
 # ======================================================
 # CONFIGURACIÓN DE PÁGINA
