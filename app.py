@@ -29,6 +29,16 @@ st.set_page_config(
 )
 
 # ======================================================
+# FLOWSHEET
+# ======================================================
+st.image(
+    "flowsheet.jpg",
+    caption="Flowsheet conceptual del sistema (estilo Aspen / DWSIM)",
+    use_container_width=True
+)
+
+
+# ======================================================
 # ESTILOS CSS
 # ======================================================
 st.markdown(
@@ -269,3 +279,55 @@ if st.button("🚀 Ejecutar Optimización"):
 
     except Exception as e:
         st.error(str(e))
+
+# ======================================================
+# APLICAR OPERACIÓN UNITARIA
+# ======================================================
+eff = UNIT_OPERATIONS[unit_op]
+
+As_after_unit = As_f * (1 - eff["As"])
+Cl_after_unit = Cl_f * (1 - eff["Cl"])
+
+
+# ======================================================
+# MODELO SIMPLE DE OSMOSIS INVERSA
+# ======================================================
+RO_REJECTION = {
+    "As": 0.97,
+    "Cl": 0.98
+}
+
+As_product = As_after_unit * (1 - RO_REJECTION["As"])
+Cl_product = Cl_after_unit * (1 - RO_REJECTION["Cl"])
+
+
+# ======================================================
+# RESULTADOS POR ETAPA
+# ======================================================
+st.subheader("🧪 Concentraciones por etapa del proceso")
+
+df_stages = pd.DataFrame({
+    "Etapa": ["Mezcla de pozos", unit_op, "Ósmosis inversa"],
+    "Arsénico (mg/L)": [As_f, As_after_unit, As_product],
+    "Cloruros (mg/L)": [Cl_f, Cl_after_unit, Cl_product]
+})
+
+st.dataframe(df_stages, use_container_width=True)
+
+
+with col1:
+    st.metric("Arsénico producto (mg/L)", f"{As_product:.5f}")
+    if As_product > 0.025:
+        st.error("⚠️ Supera límite normativo")
+    else:
+        st.success("✅ Cumple norma")
+
+with col2:
+    st.metric("Cloruros producto (mg/L)", f"{Cl_product:.2f}")
+    if Cl_product > 35:
+        st.error("⚠️ Supera límite estándar")
+    else:
+        st.success("✅ Cumple estándar")
+
+
+
