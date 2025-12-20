@@ -100,6 +100,13 @@ Demand = st.sidebar.number_input(
     help="Caudal total requerido del sistema"
 )
 
+st.sidebar.subheader("🧪 Operación unitaria")
+
+unit_op = st.sidebar.selectbox(
+    "Seleccione la operación entre pozos y RO:",
+    list(UNIT_OPERATIONS.keys())
+)
+
 # ------------------------------------------------------
 # DESCRIPCIÓN DEL MODELO (SIDEBAR)
 # ------------------------------------------------------
