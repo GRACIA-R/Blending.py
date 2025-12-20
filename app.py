@@ -31,11 +31,11 @@ st.set_page_config(
 # ======================================================
 # FLOWSHEET
 # ======================================================
-st.image(
-    "flowsheet.jpg",
-    caption="Flowsheet conceptual del sistema (estilo Aspen / DWSIM)",
-    use_container_width=True
-)
+#st.image(
+#    "flowsheet.jpg",
+#    caption="Flowsheet conceptual del sistema (estilo Aspen / DWSIM)",
+#    use_container_width=True
+#)
 
 
 # ======================================================
