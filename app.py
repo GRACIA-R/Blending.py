@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
 from optimizer import WaterBlendOptimizer
 
@@ -27,13 +26,16 @@ st.set_page_config(
 )
 
 # ======================================================
-# FLOWSHEET
+# FLOWSHEET (SEGURO)
 # ======================================================
-st.image(
-    "flowsheet.jpg",
-    caption="Diagrama del proceso",
-    use_container_width=True
-)
+try:
+    st.image(
+        "flowsheet.jpg",
+        caption="Diagrama conceptual del proceso (estilo Aspen / DWSIM)",
+        use_container_width=True
+    )
+except Exception:
+    st.warning("⚠️ No se pudo cargar la imagen del flowsheet")
 
 # ======================================================
 # ESTILOS CSS
@@ -41,6 +43,7 @@ st.image(
 st.markdown(
     """
     <style>
+    /* ===== MÉTRICAS GRANDES ===== */
     div[data-testid="metric-container"] {
         background-color: #f4fdf8;
         border: 3px solid #b6e2c8;
@@ -59,26 +62,23 @@ st.markdown(
         color: #0a7d3b;
     }
 
+    /* ===== TABLAS GRANDES ===== */
     .dataframe tbody tr td {
-        font-size: 28px;
+        font-size: 26px !important;
         font-weight: bold;
+        text-align: center;
     }
 
     .dataframe thead th {
-        font-size: 28px;
+        font-size: 24px !important;
+        font-weight: bold;
         background-color: #e6f4ec;
+        text-align: center;
     }
-    
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
-st.markdown(
-    """
-    <style>
+    /* ===== MÉTRICAS PERSONALIZADAS ===== */
     .big-metric-label {
-        font-size: 28px;
+        font-size: 26px;
         font-weight: bold;
         color: #0a7d3b;
     }
@@ -92,8 +92,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
 
 # ======================================================
 # TÍTULO
@@ -115,30 +113,21 @@ st.sidebar.header("⚙️ Parámetros del Modelo")
 
 w_Cl = st.sidebar.slider(
     "Peso Cloruros",
-    min_value=0.0,
-    max_value=1.0,
-    value=0.7,
-    step=0.05,
-    help="Define la importancia de minimizar cloruros en la mezcla en comparación con el arsénico"
+    0.0, 1.0, 0.7, 0.05,
+    help="Prioridad de minimización de cloruros"
 )
 
 w_As = 1.0 - w_Cl
-
 st.sidebar.markdown(f"**Peso Arsénico:** 🔒 **{w_As:.2f}**")
 
 Demand = st.sidebar.number_input(
     "Demanda total (LPS)",
-    min_value=0.0,
-    max_value=150.0,
-    value=50.0,
-    step=1.0,
-    help="Es la demanda de agua que se desea bombear desde los pozos"
+    0.0, 150.0, 50.0, 1.0
 )
 
 st.sidebar.subheader("🧪 Operación unitaria")
-
 unit_op = st.sidebar.selectbox(
-    "Seleccione la operación entre pozos y RO:",
+    "Operación entre pozos y RO:",
     list(UNIT_OPERATIONS.keys())
 )
 
@@ -166,7 +155,7 @@ if st.button("🚀 Ejecutar Optimización"):
 
     try:
         # ---------------------------
-        # OPTIMIZACIÓN
+        # MEZCLA ÓPTIMA
         # ---------------------------
         opt = WaterBlendOptimizer(df_edit, w_As=w_As, w_Cl=w_Cl)
         Q_opt, As_f, Cl_f = opt.optimize(Demand)
@@ -189,7 +178,7 @@ if st.button("🚀 Ejecutar Optimización"):
                 </div>
                 """,
                 unsafe_allow_html=True
-            )            
+            )
 
         with col2:
             st.markdown(
@@ -201,7 +190,7 @@ if st.button("🚀 Ejecutar Optimización"):
                 """,
                 unsafe_allow_html=True
             )
-        
+
         # ---------------------------
         # CAUDALES ÓPTIMOS
         # ---------------------------
@@ -217,7 +206,6 @@ if st.button("🚀 Ejecutar Optimización"):
         # OPERACIÓN UNITARIA
         # ======================================================
         eff = UNIT_OPERATIONS[unit_op]
-
         As_after_unit = As_f * (1 - eff["As"])
         Cl_after_unit = Cl_f * (1 - eff["Cl"])
 
@@ -225,7 +213,6 @@ if st.button("🚀 Ejecutar Optimización"):
         # OSMOSIS INVERSA (modelo simple)
         # ======================================================
         RO_REJECTION = {"As": 0.90, "Cl": 0.90}
-
         As_product = As_after_unit * (1 - RO_REJECTION["As"])
         Cl_product = Cl_after_unit * (1 - RO_REJECTION["Cl"])
 
@@ -258,7 +245,7 @@ if st.button("🚀 Ejecutar Optimización"):
                 </div>
                 """,
                 unsafe_allow_html=True
-            )            
+            )
             st.success("Cumple NOM" if As_product <= 0.025 else "No cumple NOM")
 
         with col2:
@@ -266,12 +253,12 @@ if st.button("🚀 Ejecutar Optimización"):
                 f"""
                 <div>
                     <div class="big-metric-label">Cloruros producto (mg/L)</div>
-                    <div class="big-metric-value">{Cl_product:.5f}</div>
+                    <div class="big-metric-value">{Cl_product:.2f}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
-            )              
+            )
             st.success("Cumple estándar" if Cl_product <= 35 else "No cumple estándar")
 
     except Exception as e:
-        st.error(f"Error en la optimización: {e}")
+        st.error(f"❌ Error en la optimización: {e}")
