@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 
 from optimizer import WaterBlendOptimizer
 
-
 # ======================================================
-# OPERACIONES UNITARIAS
+# OPERACIONES UNITARIAS (eficiencias aparentes)
 # ======================================================
 UNIT_OPERATIONS = {
     "Sin pretratamiento": {"As": 0.00, "Cl": 0.00},
@@ -18,7 +17,6 @@ UNIT_OPERATIONS = {
     "Precipitación química": {"As": 0.75, "Cl": 0.05},
     "Deionización capacitiva (CDI)": {"As": 0.75, "Cl": 0.05},
 }
-
 
 # ======================================================
 # CONFIGURACIÓN DE PÁGINA
@@ -31,12 +29,11 @@ st.set_page_config(
 # ======================================================
 # FLOWSHEET
 # ======================================================
-#st.image(
-#    "flowsheet.jpg",
-#    caption="Flowsheet conceptual del sistema (estilo Aspen / DWSIM)",
-#    use_container_width=True
-#)
-
+st.image(
+    "flowsheet.jpg",
+    caption="Flowsheet conceptual del sistema (estilo Aspen / DWSIM)",
+    use_container_width=True
+)
 
 # ======================================================
 # ESTILOS CSS
@@ -44,7 +41,6 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* ===== MÉTRICAS MUY GRANDES ===== */
     div[data-testid="metric-container"] {
         background-color: #f4fdf8;
         border: 2px solid #b6e2c8;
@@ -63,9 +59,8 @@ st.markdown(
         color: #0a7d3b;
     }
 
-    /* ===== TABLAS GRANDES ===== */
     .dataframe tbody tr td {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
     }
 
@@ -87,7 +82,7 @@ st.markdown(
 )
 
 st.markdown(
-    "<b>Optimización del mezclado de agua para control de arsénico y cloruros</b>",
+    "<b>Control de arsénico y cloruros mediante optimización matemática</b>",
     unsafe_allow_html=True
 )
 
@@ -96,33 +91,24 @@ st.markdown(
 # ======================================================
 st.sidebar.header("⚙️ Parámetros del Modelo")
 
-# ---- PESO CLORUROS (CONTROL PRINCIPAL)
 w_Cl = st.sidebar.slider(
     "Peso Cloruros",
     min_value=0.0,
     max_value=1.0,
     value=0.7,
-    step=0.05,
-    help="Controla la prioridad de reducción de cloruros"
+    step=0.05
 )
 
-# ---- PESO ARSÉNICO (DERIVADO)
 w_As = 1.0 - w_Cl
 
-st.sidebar.markdown(
-    f"""
-    **Peso Arsénico:**  
-    🔒 **{w_As:.2f}**
-    """
-)
+st.sidebar.markdown(f"**Peso Arsénico:** 🔒 **{w_As:.2f}**")
 
 Demand = st.sidebar.number_input(
-    "Demanda (LPS)",
+    "Demanda total (LPS)",
     min_value=0.0,
     max_value=150.0,
     value=50.0,
-    step=1.0,
-    help="Caudal total requerido del sistema"
+    step=1.0
 )
 
 st.sidebar.subheader("🧪 Operación unitaria")
@@ -132,41 +118,10 @@ unit_op = st.sidebar.selectbox(
     list(UNIT_OPERATIONS.keys())
 )
 
-# ------------------------------------------------------
-# DESCRIPCIÓN DEL MODELO (SIDEBAR)
-# ------------------------------------------------------
-st.sidebar.markdown(
-    """
-    ---
-    ### ¿Cómo funciona el modelo?
-
-    El modelo calcula la **combinación óptima de caudales**
-    de los pozos disponibles para cumplir la **demanda total**
-    minimizando la concentración final de contaminantes.
-
-    **Pesos: Se refiere a la importancia de reducción de cada contaminante**
-    - Solo se ajusta **Cloruros**
-    - **Arsénico = 1 − Peso Cloruros**
-    - La suma de pesos es siempre **1**
-
-    **💧 Demanda**
-    - Rango operativo: **0 – 150 LPS**
-    - Demandas altas pueden forzar el uso de pozos de peor calidad.
-
-    **📏 Límites establecidos**
-    - Arsénico: **0.025 mg/L**
-    - Cloruros: **35 mg/L**
-
-    **Contacto**
-    german.devora@itson.edu.mx
-    """
-    
-)
-
 # ======================================================
 # DATOS DE POZOS
 # ======================================================
-st.subheader("📊 Datos de los Pozos (editables)")
+st.subheader("📊 Datos de los Pozos")
 
 df = pd.DataFrame({
     "Pozo": ["Pozo 1", "Pozo 2", "Pozo 3", "Pozo 4", "Pozo 5"],
@@ -176,12 +131,7 @@ df = pd.DataFrame({
     "Disponible": [True, True, True, True, True]
 }).set_index("Pozo")
 
-df_edit = st.data_editor(
-    df,
-    use_container_width=True,
-    num_rows="fixed"
-)
-
+df_edit = st.data_editor(df, use_container_width=True)
 df_edit["avail"] = df_edit["Disponible"].astype(int)
 df_edit = df_edit.drop(columns="Disponible")
 
@@ -191,143 +141,81 @@ df_edit = df_edit.drop(columns="Disponible")
 if st.button("🚀 Ejecutar Optimización"):
 
     try:
-        opt = WaterBlendOptimizer(
-            df_edit,
-            w_As=w_As,
-            w_Cl=w_Cl
-        )
-
+        # ---------------------------
+        # OPTIMIZACIÓN
+        # ---------------------------
+        opt = WaterBlendOptimizer(df_edit, w_As=w_As, w_Cl=w_Cl)
         Q_opt, As_f, Cl_f = opt.optimize(Demand)
 
         st.success("Optimización completada correctamente")
 
-        # --------------------------------------------------
-        # RESULTADOS
-        # --------------------------------------------------
-        st.subheader("📈 Resultados")
+        # ---------------------------
+        # RESULTADOS MEZCLA
+        # ---------------------------
+        st.subheader("📈 Resultados de la mezcla")
 
         col1, col2 = st.columns(2)
 
         with col1:
-            st.markdown(
-                "<h2 style='color:#0a7d3b;'>Arsénico final (mg/L)</h2>",
-                unsafe_allow_html=True
-            )
-            st.metric("", f"{As_f:.5f}")
-            if As_f > 0.025:
-                st.error("⚠️ Supera límite normativo (0.025 mg/L)")
-            else:
-                st.success("✅ Cumple norma")
+            st.metric("Arsénico mezcla (mg/L)", f"{As_f:.5f}")
 
         with col2:
-            st.markdown(
-                "<h2 style='color:#0a7d3b;'>Cloruro final (mg/L)</h2>",
-                unsafe_allow_html=True
-            )
-            st.metric("", f"{Cl_f:.2f}")
-            if Cl_f > 35:
-                st.error("⚠️ Supera límite estándar (35 mg/L)")
-            else:
-                st.success("✅ Cumple estándar")
+            st.metric("Cloruros mezcla (mg/L)", f"{Cl_f:.2f}")
 
-        # --------------------------------------------------
+        # ---------------------------
         # CAUDALES ÓPTIMOS
-        # --------------------------------------------------
-        st.markdown(
-            "<h2 style='color:#0a7d3b;'>💧 Caudales Óptimos (LPS)</h2>",
-            unsafe_allow_html=True
-        )
+        # ---------------------------
+        st.subheader("💧 Caudales óptimos por pozo")
 
         df_Q = pd.DataFrame.from_dict(
             Q_opt, orient="index", columns=["Caudal (LPS)"]
         )
-
         df_Q = df_Q[df_Q["Caudal (LPS)"] > 1e-3]
         st.dataframe(df_Q, use_container_width=True)
 
-        # --------------------------------------------------
-        # SENSIBILIDAD CON DEMANDA
-        # --------------------------------------------------
-        st.subheader("📉 Sensibilidad con la Demanda")
+        # ======================================================
+        # OPERACIÓN UNITARIA
+        # ======================================================
+        eff = UNIT_OPERATIONS[unit_op]
 
-        Ds = np.arange(5, int(df_edit["Qmax"].sum()), 2)
-        As_list, Cl_list = [], []
+        As_after_unit = As_f * (1 - eff["As"])
+        Cl_after_unit = Cl_f * (1 - eff["Cl"])
 
-        for d in Ds:
-            try:
-                _, A, C = opt.optimize(d)
-                As_list.append(A)
-                Cl_list.append(C)
-            except:
-                pass
+        # ======================================================
+        # OSMOSIS INVERSA (modelo simple)
+        # ======================================================
+        RO_REJECTION = {"As": 0.97, "Cl": 0.98}
 
-        fig, ax1 = plt.subplots(figsize=(9, 4))
-        ax2 = ax1.twinx()
+        As_product = As_after_unit * (1 - RO_REJECTION["As"])
+        Cl_product = Cl_after_unit * (1 - RO_REJECTION["Cl"])
 
-        ax1.plot(Ds[:len(As_list)], As_list, linewidth=2)
-        ax2.plot(Ds[:len(Cl_list)], Cl_list, "r--", linewidth=2)
+        # ======================================================
+        # RESULTADOS POR ETAPA
+        # ======================================================
+        st.subheader("🧪 Concentraciones por etapa")
 
-        ax1.axhline(0.025, color="red", linestyle=":", linewidth=2)
-        ax2.axhline(35, color="darkred", linestyle=":", linewidth=2)
+        df_stages = pd.DataFrame({
+            "Etapa": ["Mezcla de pozos", unit_op, "Ósmosis inversa"],
+            "Arsénico (mg/L)": [As_f, As_after_unit, As_product],
+            "Cloruros (mg/L)": [Cl_f, Cl_after_unit, Cl_product]
+        })
 
-        ax1.set_xlabel("Demanda (LPS)")
-        ax1.set_ylabel("Arsénico (mg/L)")
-        ax2.set_ylabel("Cloruros (mg/L)")
+        st.dataframe(df_stages, use_container_width=True)
 
-        fig.tight_layout()
-        st.pyplot(fig)
+        # ======================================================
+        # MÉTRICAS FINALES
+        # ======================================================
+        st.subheader("✅ Calidad del agua producto")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.metric("Arsénico producto (mg/L)", f"{As_product:.5f}")
+            st.success("Cumple NOM" if As_product <= 0.025 else "No cumple NOM")
+
+        with col2:
+            st.metric("Cloruros producto (mg/L)", f"{Cl_product:.2f}")
+            st.success("Cumple estándar" if Cl_product <= 35 else "No cumple estándar")
 
     except Exception as e:
-        st.error(str(e))
-
-# ======================================================
-# APLICAR OPERACIÓN UNITARIA
-# ======================================================
-eff = UNIT_OPERATIONS[unit_op]
-
-As_after_unit = As_f * (1 - eff["As"])
-Cl_after_unit = Cl_f * (1 - eff["Cl"])
-
-
-# ======================================================
-# MODELO SIMPLE DE OSMOSIS INVERSA
-# ======================================================
-RO_REJECTION = {
-    "As": 0.97,
-    "Cl": 0.98
-}
-
-As_product = As_after_unit * (1 - RO_REJECTION["As"])
-Cl_product = Cl_after_unit * (1 - RO_REJECTION["Cl"])
-
-
-# ======================================================
-# RESULTADOS POR ETAPA
-# ======================================================
-st.subheader("🧪 Concentraciones por etapa del proceso")
-
-df_stages = pd.DataFrame({
-    "Etapa": ["Mezcla de pozos", unit_op, "Ósmosis inversa"],
-    "Arsénico (mg/L)": [As_f, As_after_unit, As_product],
-    "Cloruros (mg/L)": [Cl_f, Cl_after_unit, Cl_product]
-})
-
-st.dataframe(df_stages, use_container_width=True)
-
-
-with col1:
-    st.metric("Arsénico producto (mg/L)", f"{As_product:.5f}")
-    if As_product > 0.025:
-        st.error("⚠️ Supera límite normativo")
-    else:
-        st.success("✅ Cumple norma")
-
-with col2:
-    st.metric("Cloruros producto (mg/L)", f"{Cl_product:.2f}")
-    if Cl_product > 35:
-        st.error("⚠️ Supera límite estándar")
-    else:
-        st.success("✅ Cumple estándar")
-
-
-
+        st.error(f"Error en la optimización: {e}")
