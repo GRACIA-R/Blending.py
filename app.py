@@ -68,6 +68,19 @@ st.markdown(
         font-size: 28px;
         background-color: #e6f4ec;
     }
+
+    .big-metric-label {
+        font-size: 28px;
+        font-weight: bold;
+        color: #0a7d3b;
+    }
+
+    .big-metric-value {
+        font-size: 56px;
+        font-weight: bold;
+        color: #0a7d3b;
+    }
+    
     </style>
     """,
     unsafe_allow_html=True
@@ -202,7 +215,7 @@ if st.button("🚀 Ejecutar Optimización"):
         # ======================================================
         # OSMOSIS INVERSA (modelo simple)
         # ======================================================
-        RO_REJECTION = {"As": 0.95, "Cl": 0.95}
+        RO_REJECTION = {"As": 0.90, "Cl": 0.90}
 
         As_product = As_after_unit * (1 - RO_REJECTION["As"])
         Cl_product = Cl_after_unit * (1 - RO_REJECTION["Cl"])
