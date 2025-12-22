@@ -48,18 +48,6 @@ st.markdown(
         border-radius: 22px;
     }
 
-    .big-metric-label {
-        font-size: 28px;
-        font-weight: bold;
-        color: #0a7d3b;
-    }
-
-    .big-metric-value {
-        font-size: 56px;
-        font-weight: bold;
-        color: #0a7d3b;
-    }
-
     div[data-testid="metric-container"] > label {
         font-size: 24px !important;
         font-weight: bold;
