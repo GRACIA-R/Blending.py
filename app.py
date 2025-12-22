@@ -68,7 +68,15 @@ st.markdown(
         font-size: 28px;
         background-color: #e6f4ec;
     }
+    
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
+st.markdown(
+    """
+    <style>
     .big-metric-label {
         font-size: 28px;
         font-weight: bold;
@@ -80,11 +88,12 @@ st.markdown(
         font-weight: bold;
         color: #0a7d3b;
     }
-    
     </style>
     """,
     unsafe_allow_html=True
 )
+
+
 
 # ======================================================
 # TÍTULO
