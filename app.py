@@ -13,8 +13,8 @@ UNIT_OPERATIONS = {
     "Intercambio iónico": {"As": 0.85, "Cl": 0.10},
     "Adsorción": {"As": 0.70, "Cl": 0.05},
     "Electrocoagulación": {"As": 0.90, "Cl": 0.15},
-    "Biodegradación": {"As": 0.40, "Cl": 0.00},
-    "Precipitación química": {"As": 0.75, "Cl": 0.05},
+    "Biodegradación": {"As": 0.10, "Cl": 0.00},
+    "Precipitación química": {"As": 0.95, "Cl": 0.05},
     "Deionización capacitiva (CDI)": {"As": 0.75, "Cl": 0.05},
 }
 
@@ -43,9 +43,21 @@ st.markdown(
     <style>
     div[data-testid="metric-container"] {
         background-color: #f4fdf8;
-        border: 2px solid #b6e2c8;
+        border: 3px solid #b6e2c8;
         padding: 25px;
-        border-radius: 12px;
+        border-radius: 22px;
+    }
+
+    .big-metric-label {
+        font-size: 28px;
+        font-weight: bold;
+        color: #0a7d3b;
+    }
+
+    .big-metric-value {
+        font-size: 56px;
+        font-weight: bold;
+        color: #0a7d3b;
     }
 
     div[data-testid="metric-container"] > label {
@@ -96,7 +108,8 @@ w_Cl = st.sidebar.slider(
     min_value=0.0,
     max_value=1.0,
     value=0.7,
-    step=0.05
+    step=0.05,
+    help="Define la importancia de minimizar cloruros en la mezcla en comparación con el arsénico"
 )
 
 w_As = 1.0 - w_Cl
@@ -108,7 +121,8 @@ Demand = st.sidebar.number_input(
     min_value=0.0,
     max_value=150.0,
     value=50.0,
-    step=1.0
+    step=1.0,
+    help="Es la demanda de agua que se desea bombear desde los pozos"
 )
 
 st.sidebar.subheader("🧪 Operación unitaria")
@@ -157,11 +171,27 @@ if st.button("🚀 Ejecutar Optimización"):
         col1, col2 = st.columns(2)
 
         with col1:
-            st.metric("Arsénico mezcla (mg/L)", f"{As_f:.5f}")
+            st.markdown(
+                f"""
+                <div>
+                    <div class="big-metric-label">Arsénico mezcla (mg/L)</div>
+                    <div class="big-metric-value">{As_f:.5f}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )            
 
         with col2:
-            st.metric("Cloruros mezcla (mg/L)", f"{Cl_f:.2f}")
-
+            st.markdown(
+                f"""
+                <div>
+                    <div class="big-metric-label">Cloruros mezcla (mg/L)</div>
+                    <div class="big-metric-value">{Cl_f:.2f}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        
         # ---------------------------
         # CAUDALES ÓPTIMOS
         # ---------------------------
