@@ -250,11 +250,27 @@ if st.button("🚀 Ejecutar Optimización"):
         col1, col2 = st.columns(2)
 
         with col1:
-            st.metric("Arsénico producto (mg/L)", f"{As_product:.5f}")
+            st.markdown(
+                f"""
+                <div>
+                    <div class="big-metric-label">Arsénico producto (mg/L)</div>
+                    <div class="big-metric-value">{As_product:.5f}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )            
             st.success("Cumple NOM" if As_product <= 0.025 else "No cumple NOM")
 
         with col2:
-            st.metric("Cloruros producto (mg/L)", f"{Cl_product:.2f}")
+            st.markdown(
+                f"""
+                <div>
+                    <div class="big-metric-label">Cloruros producto (mg/L)</div>
+                    <div class="big-metric-value">{Cl_product:.5f}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )              
             st.success("Cumple estándar" if Cl_product <= 35 else "No cumple estándar")
 
     except Exception as e:
