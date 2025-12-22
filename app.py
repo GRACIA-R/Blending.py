@@ -31,7 +31,7 @@ st.set_page_config(
 # ======================================================
 st.image(
     "flowsheet.jpg",
-    caption="Flowsheet conceptual del sistema (estilo Aspen / DWSIM)",
+    caption="Diagrama del proceso",
     use_container_width=True
 )
 
@@ -60,12 +60,12 @@ st.markdown(
     }
 
     .dataframe tbody tr td {
-        font-size: 18px;
+        font-size: 28px;
         font-weight: bold;
     }
 
     .dataframe thead th {
-        font-size: 18px;
+        font-size: 28px;
         background-color: #e6f4ec;
     }
     </style>
@@ -184,7 +184,7 @@ if st.button("🚀 Ejecutar Optimización"):
         # ======================================================
         # OSMOSIS INVERSA (modelo simple)
         # ======================================================
-        RO_REJECTION = {"As": 0.97, "Cl": 0.98}
+        RO_REJECTION = {"As": 0.95, "Cl": 0.95}
 
         As_product = As_after_unit * (1 - RO_REJECTION["As"])
         Cl_product = Cl_after_unit * (1 - RO_REJECTION["Cl"])
