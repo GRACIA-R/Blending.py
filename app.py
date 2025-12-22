@@ -231,7 +231,7 @@ if st.button("🚀 Ejecutar Optimización"):
         st.dataframe(df_stages, use_container_width=True)
 
         # ======================================================
-        # MÉTRICAS FINALES (DINÁMICAS)
+        # MÉTRICAS FINALES (CORREGIDAS)
         # ======================================================
         st.subheader("✅ Calidad del agua producto")
 
@@ -256,7 +256,11 @@ if st.button("🚀 Ejecutar Optimización"):
                 """,
                 unsafe_allow_html=True
             )
-            st.success("Cumple NOM") if as_ok else st.error("No cumple NOM")
+
+            if as_ok:
+                st.success("Cumple NOM")
+            else:
+                st.error("No cumple NOM")
 
         # ---- Cloruros ----
         cl_ok = Cl_product <= 35
@@ -277,7 +281,11 @@ if st.button("🚀 Ejecutar Optimización"):
                 """,
                 unsafe_allow_html=True
             )
-            st.success("Cumple estándar") if cl_ok else st.error("No cumple estándar")
+
+            if cl_ok:
+                st.success("Cumple estándar")
+            else:
+                st.error("No cumple estándar")
 
     except Exception as e:
         st.error(f"❌ Error en la optimización: {e}")
