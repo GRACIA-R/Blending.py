@@ -13,8 +13,8 @@ UNIT_OPERATIONS = {
     "Adsorción": {"As": 0.80, "Cl": 0.50},
     "Electrocoagulación": {"As": 0.90, "Cl": 0.20},
     "Biodegradación": {"As": 0.40, "Cl": 0.10},
-    "Precipitación química": {"As": 0.9, "Cl": 0.8},
-    "Deionización capacitiva (CDI)": {"As": 0.8, "Cl": 0.6},
+    "Precipitación química": {"As": 0.90, "Cl": 0.80},
+    "Deionización capacitiva (CDI)": {"As": 0.80, "Cl": 0.60},
 }
 
 # ======================================================
@@ -31,7 +31,7 @@ st.set_page_config(
 try:
     st.image(
         "flowsheet.jpg",
-        caption="Diagrama conceptual del proceso",
+        caption="Diagrama conceptual del proceso (estilo Aspen / DWSIM)",
         use_container_width=True
     )
 except Exception:
@@ -43,26 +43,8 @@ except Exception:
 st.markdown(
     """
     <style>
-    /* ===== MÉTRICAS GRANDES ===== */
-    div[data-testid="metric-container"] {
-        background-color: #f4fdf8;
-        border: 3px solid #b6e2c8;
-        padding: 25px;
-        border-radius: 22px;
-    }
 
-    div[data-testid="metric-container"] > label {
-        font-size: 24px !important;
-        font-weight: bold;
-    }
-
-    div[data-testid="metric-container"] > div {
-        font-size: 42px !important;
-        font-weight: bold;
-        color: #0a7d3b;
-    }
-
-    /* ===== TABLAS GRANDES ===== */
+    /* ===== TABLAS ===== */
     .dataframe tbody tr td {
         font-size: 26px !important;
         font-weight: bold;
@@ -77,17 +59,38 @@ st.markdown(
     }
 
     /* ===== MÉTRICAS PERSONALIZADAS ===== */
-    .big-metric-label {
+    .metric-ok {
+        background-color: #e8f7ee;
+        border: 3px solid #3cb371;
+        padding: 25px;
+        border-radius: 22px;
+    }
+
+    .metric-bad {
+        background-color: #fdecea;
+        border: 3px solid #e74c3c;
+        padding: 25px;
+        border-radius: 22px;
+    }
+
+    .metric-label {
         font-size: 26px;
         font-weight: bold;
+    }
+
+    .metric-value {
+        font-size: 56px;
+        font-weight: bold;
+    }
+
+    .ok-text {
         color: #0a7d3b;
     }
 
-    .big-metric-value {
-        font-size: 56px;
-        font-weight: bold;
-        color: #0a7d3b;
+    .bad-text {
+        color: #c0392b;
     }
+
     </style>
     """,
     unsafe_allow_html=True
@@ -102,7 +105,7 @@ st.markdown(
 )
 
 st.markdown(
-    "<b>Control de arsénico y cloruros mediante optimización matemática</b>",
+    "<b>Control de arsénico y cloruros mediante optimización matemática y gemelos digitales</b>",
     unsafe_allow_html=True
 )
 
@@ -172,9 +175,9 @@ if st.button("🚀 Ejecutar Optimización"):
         with col1:
             st.markdown(
                 f"""
-                <div>
-                    <div class="big-metric-label">Arsénico mezcla (mg/L)</div>
-                    <div class="big-metric-value">{As_f:.5f}</div>
+                <div class="metric-ok">
+                    <div class="metric-label ok-text">Arsénico mezcla (mg/L)</div>
+                    <div class="metric-value ok-text">{As_f:.5f}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -183,9 +186,9 @@ if st.button("🚀 Ejecutar Optimización"):
         with col2:
             st.markdown(
                 f"""
-                <div>
-                    <div class="big-metric-label">Cloruros mezcla (mg/L)</div>
-                    <div class="big-metric-value">{Cl_f:.2f}</div>
+                <div class="metric-ok">
+                    <div class="metric-label ok-text">Cloruros mezcla (mg/L)</div>
+                    <div class="metric-value ok-text">{Cl_f:.2f}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -196,9 +199,7 @@ if st.button("🚀 Ejecutar Optimización"):
         # ---------------------------
         st.subheader("💧 Caudales óptimos por pozo")
 
-        df_Q = pd.DataFrame.from_dict(
-            Q_opt, orient="index", columns=["Caudal (LPS)"]
-        )
+        df_Q = pd.DataFrame.from_dict(Q_opt, orient="index", columns=["Caudal (LPS)"])
         df_Q = df_Q[df_Q["Caudal (LPS)"] > 1e-3]
         st.dataframe(df_Q, use_container_width=True)
 
@@ -210,7 +211,7 @@ if st.button("🚀 Ejecutar Optimización"):
         Cl_after_unit = Cl_f * (1 - eff["Cl"])
 
         # ======================================================
-        # OSMOSIS INVERSA (modelo simple)
+        # ÓSMOSIS INVERSA
         # ======================================================
         RO_REJECTION = {"As": 0.90, "Cl": 0.80}
         As_product = As_after_unit * (1 - RO_REJECTION["As"])
@@ -230,35 +231,53 @@ if st.button("🚀 Ejecutar Optimización"):
         st.dataframe(df_stages, use_container_width=True)
 
         # ======================================================
-        # MÉTRICAS FINALES
+        # MÉTRICAS FINALES (DINÁMICAS)
         # ======================================================
         st.subheader("✅ Calidad del agua producto")
 
         col1, col2 = st.columns(2)
 
+        # ---- Arsénico ----
+        as_ok = As_product <= 0.025
+        as_class = "metric-ok" if as_ok else "metric-bad"
+        as_text = "ok-text" if as_ok else "bad-text"
+
         with col1:
             st.markdown(
                 f"""
-                <div>
-                    <div class="big-metric-label">Arsénico producto (mg/L)</div>
-                    <div class="big-metric-value">{As_product:.5f}</div>
+                <div class="{as_class}">
+                    <div class="metric-label {as_text}">
+                        Arsénico producto (mg/L)
+                    </div>
+                    <div class="metric-value {as_text}">
+                        {As_product:.5f}
+                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-            st.success("Cumple NOM" if As_product <= 0.025 else "No cumple NOM")
+            st.success("Cumple NOM") if as_ok else st.error("No cumple NOM")
+
+        # ---- Cloruros ----
+        cl_ok = Cl_product <= 35
+        cl_class = "metric-ok" if cl_ok else "metric-bad"
+        cl_text = "ok-text" if cl_ok else "bad-text"
 
         with col2:
             st.markdown(
                 f"""
-                <div>
-                    <div class="big-metric-label">Cloruros producto (mg/L)</div>
-                    <div class="big-metric-value">{Cl_product:.2f}</div>
+                <div class="{cl_class}">
+                    <div class="metric-label {cl_text}">
+                        Cloruros producto (mg/L)
+                    </div>
+                    <div class="metric-value {cl_text}">
+                        {Cl_product:.2f}
+                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-            st.success("Cumple estándar" if Cl_product <= 35 else "No cumple estándar")
+            st.success("Cumple estándar") if cl_ok else st.error("No cumple estándar")
 
     except Exception as e:
         st.error(f"❌ Error en la optimización: {e}")
