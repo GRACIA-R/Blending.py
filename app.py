@@ -9,12 +9,12 @@ from optimizer import WaterBlendOptimizer
 # ======================================================
 UNIT_OPERATIONS = {
     "Sin pretratamiento": {"As": 0.00, "Cl": 0.00},
-    "Intercambio iónico": {"As": 0.85, "Cl": 0.10},
-    "Adsorción": {"As": 0.70, "Cl": 0.05},
-    "Electrocoagulación": {"As": 0.90, "Cl": 0.15},
-    "Biodegradación": {"As": 0.10, "Cl": 0.00},
-    "Precipitación química": {"As": 0.95, "Cl": 0.05},
-    "Deionización capacitiva (CDI)": {"As": 0.75, "Cl": 0.05},
+    "Intercambio iónico": {"As": 0.90, "Cl": 0.20},
+    "Adsorción": {"As": 0.80, "Cl": 0.50},
+    "Electrocoagulación": {"As": 0.90, "Cl": 0.20},
+    "Biodegradación": {"As": 0.40, "Cl": 0.10},
+    "Precipitación química": {"As": 0.9, "Cl": 0.8},
+    "Deionización capacitiva (CDI)": {"As": 0.8, "Cl": 0.6},
 }
 
 # ======================================================
@@ -31,7 +31,7 @@ st.set_page_config(
 try:
     st.image(
         "flowsheet.jpg",
-        caption="Diagrama conceptual del proceso (estilo Aspen / DWSIM)",
+        caption="Diagrama conceptual del proceso",
         use_container_width=True
     )
 except Exception:
@@ -212,7 +212,7 @@ if st.button("🚀 Ejecutar Optimización"):
         # ======================================================
         # OSMOSIS INVERSA (modelo simple)
         # ======================================================
-        RO_REJECTION = {"As": 0.90, "Cl": 0.90}
+        RO_REJECTION = {"As": 0.90, "Cl": 0.80}
         As_product = As_after_unit * (1 - RO_REJECTION["As"])
         Cl_product = Cl_after_unit * (1 - RO_REJECTION["Cl"])
 
