@@ -145,6 +145,9 @@ st.sidebar.markdown(
     Además, se incluye la opción de añadir una operación unitaria previa a la ósmosis inversa (RO)
     que mejora la calidad del agua que va a proceso. Derivando en un digital twin accesible desde
     la web con posibilidad de mejora.
+
+    **Contacto**
+    german.devora@itson.edu.mx
     """
 )
 
