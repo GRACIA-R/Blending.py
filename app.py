@@ -31,7 +31,7 @@ st.set_page_config(
 try:
     st.image(
         "flowsheet.jpg",
-        caption="Diagrama conceptual del proceso (estilo Aspen / DWSIM)",
+        caption="Diagrama conceptual del proceso",
         use_container_width=True
     )
 except Exception:
