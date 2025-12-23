@@ -5,7 +5,7 @@ import numpy as np
 from optimizer import WaterBlendOptimizer
 
 # ======================================================
-# OPERACIONES UNITARIAS (eficiencias aparentes)
+# OPERACIONES UNITARIAS (eficiencias)
 # ======================================================
 UNIT_OPERATIONS = {
     "Sin pretratamiento": {"As": 0.00, "Cl": 0.00},
@@ -105,7 +105,7 @@ st.markdown(
 )
 
 st.markdown(
-    "<b>Control de arsénico y cloruros mediante optimización matemática y gemelos digitales</b>",
+    "<b>Control de arsénico y cloruros mediante programación lineal entera mixta (MILP)</b>",
     unsafe_allow_html=True
 )
 
@@ -133,6 +133,22 @@ unit_op = st.sidebar.selectbox(
     "Operación entre pozos y RO:",
     list(UNIT_OPERATIONS.keys())
 )
+
+st.sidebar.subheader("¿Cómo funciona este modelo?")
+st.sidebar.markdown(
+    """
+    El modelo minimiza la concentración de cloruros y arsénico mediante el mezclado 
+    de las corrientes de flujo que provienen de los pozos. Esto lo hace considerando las
+    concenteaciones de ambas especies, los caudales máximos de operación y la disponibilidad
+    de cada pozo (todo editable).
+
+    Además, se incluye la opción de añadir una operación unitaria previa a la ósmosis inversa (RO)
+    que mejora la calidad del agua que va a proceso. Derivando en un digital twin accesible desde
+    la web con posibilidad de mejora.
+    """
+)
+
+
 
 # ======================================================
 # DATOS DE POZOS
